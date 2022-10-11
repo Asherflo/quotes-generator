@@ -1,46 +1,57 @@
 package com.semicolon.quotes_generator.service.web;
-
-import com.semicolon.quotes_generator.QuoteGeneratorDto;
+;
 import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.data.repository.WebQuoteRepository;
-import com.semicolon.quotes_generator.exceptions.QuoteGeneratorException;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
+import com.semicolon.quotes_generator.dtos.responses.QuoteDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class WebQuoteServiceImpl implements WebQuoteService {
-
-    @Autowired
-    private WebQuoteRepository webQuoteRepository;
-
-//    private QuoteGeneratorDto quoteGeneratorDto;
+    private final RestTemplate restTemplate;
+    private final WebQuoteRepository webQuoteRepository;
 
     @Override
-    public QuoteGeneratorDto findWebQuoteByQuote(String quote) {
-        WebQuote webQuote = webQuoteRepository.findWebQuoteByQuote(quote).orElseThrow(() -> new QuoteGeneratorException("There is no such quote.", 401));
-        QuoteGeneratorDto quoteGeneratorDto = QuoteGeneratorDto.builder()
-                .quote(webQuote.getQuote())
-                .build();
-        return quoteGeneratorDto;
+    public LoadQuoteResponse loadWebQuotesToDatabase() {
+        loadWebQuotesIntoDatabaseFromKanyeWestApi();
+        return LoadQuoteResponse.builder().successful(true).build();
     }
 
     @Override
-    public QuoteGeneratorDto findWebQuoteByAuthor(String author) {
-        WebQuote webQuote = webQuoteRepository.findWebQuoteByAuthor(author).orElseThrow(()-> new QuoteGeneratorException("There is no such author, enter right author", 401));
-        QuoteGeneratorDto quoteGeneratorDto = QuoteGeneratorDto.builder()
-                .author(webQuote.getAuthor())
-                .build();
-        return quoteGeneratorDto;
+    public WebQuote next() {
+        return null;
     }
 
     @Override
-    public QuoteGeneratorDto findWebQuoteByQuoteNumber(int quoteNumber) {
-        WebQuote webQuote = webQuoteRepository.findWebQuoteByQuoteNumber(quoteNumber).orElseThrow(()-> new QuoteGeneratorException("search query error", 401));
-        QuoteGeneratorDto quoteGeneratorDto = QuoteGeneratorDto.builder()
-                .quoteNumber(webQuote.getQuoteNumber())
-                .build();
-        return quoteGeneratorDto;
+    public WebQuote previous() {
+        return null;
     }
 
 
+    private WebQuote buildWebQuoteFrom(int i, String quote) {
+        return WebQuote.builder()
+                 .quote(quote)
+                 .quoteNumber(i)
+                 .author("Kanye West")
+                 .build();
+    }
+
+    private String fetchQuoteFromKanyeWestApi(){
+        QuoteDto quoteDto = restTemplate.getForObject("https://api.kanye.rest", QuoteDto.class);
+        return Objects.requireNonNull(quoteDto).getQuote();
+    }
+    private void loadWebQuotesIntoDatabaseFromKanyeWestApi() {
+        for (int i = 1; i <= 500; i++) {
+            String quote = fetchQuoteFromKanyeWestApi();
+            if (!webQuoteRepository.existsByQuote(quote)) {
+                WebQuote webQuote = buildWebQuoteFrom(i, quote);
+                webQuoteRepository.save(webQuote);
+            }
+        }
+    }
 }
