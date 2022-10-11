@@ -1,12 +1,15 @@
 package com.semicolon.quotes_generator.service.web;
 
-import com.semicolon.quotes_generator.QuoteGeneratorDto;
+
 import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.data.repository.WebQuoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,45 +21,31 @@ class WebQuoteServiceImplTest {
 
     @Autowired
     private WebQuoteRepository webQuoteRepository;
+    @Autowired
+    private RestTemplate restTemplate;
 
-    private WebQuote quoteGeneratorDto;
     @BeforeEach
     void setUp() {
-        webQuoteService = new WebQuoteServiceImpl();
-
-        QuoteGeneratorDto quoteGeneratorDto =
-                QuoteGeneratorDto.builder()
-                        .quote("pay")
-                        .build();
-
-
+        webQuoteService = new WebQuoteServiceImpl(restTemplate, webQuoteRepository);
     }
-
 
     @Test
     public void canFindWebQuoteByQuoteTest(){
-
-        assertEquals("hard work pays", quoteGeneratorDto.getQuote());
-
+       WebQuote foundWebQuote =  webQuoteService.findWebQuoteByQuote("Culture is the most powerful force in humanity under God");
+       assertEquals(18, foundWebQuote.getQuoteNumber());
+        assertNotNull(foundWebQuote);
     }
 
 
     @Test
     public void canFindWebQuoteByAuthorTest(){
-//        WebQuote webQuote = new WebQuote();
-//        webQuote.setAuthor("author");
-
-//        webQuoteService.findWebQuoteByQuote(quoteGeneratorDto.getQuote());
-        assertEquals("author", quoteGeneratorDto.getAuthor());
+        List<WebQuote> webQuoteList = webQuoteService.findWebQuoteByAuthor("Kanye West");
+        assertNotNull(webQuoteList);
     }
 
     @Test
     public void canFindWebQuoteByQuoteNumberTest(){
-
-        WebQuote webQuote = new WebQuote();
-//        webQuote.setQuoteNumber(1);
-        webQuoteRepository.save(webQuote);
-        quoteGeneratorDto = webQuoteRepository.save(webQuote);
-        assertEquals(1, quoteGeneratorDto.getQuoteNumber());
+        WebQuote foundWebQuote = webQuoteService.findWebQuoteByQuoteNumber(1);
+        assertEquals("One day I'm gon' marry a porn star", foundWebQuote.getQuote());
     }
 }

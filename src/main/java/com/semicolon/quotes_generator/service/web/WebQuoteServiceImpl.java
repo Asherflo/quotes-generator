@@ -4,6 +4,7 @@ import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.data.repository.WebQuoteRepository;
 import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
 import com.semicolon.quotes_generator.dtos.responses.QuoteDto;
+import com.semicolon.quotes_generator.exceptions.WebQuoteNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,24 +32,26 @@ public class WebQuoteServiceImpl implements WebQuoteService {
     }
 
     @Override
-    public Map<String, Object> findAll(int numberOfPages, int numberOfItems) {
-        Pageable pageable = PageRequest.of(numberOfPages, numberOfItems, Sort.by("quoteNumber"));
-        Page<WebQuote> page = webQuoteRepository.findAll(pageable);
+    public List<WebQuote> findAll() {
+        return webQuoteRepository.findAll();
+    }
 
-        Map<String, Object> pageResult = new HashMap<>();
-        pageResult.put("totalNumberOfPages", page.getTotalPages());
-        pageResult.put("totalNumberOfElementsInDatabase", page.getTotalElements());
-        if (page.hasNext()){
-            pageResult.put("nextPage", page.nextPageable());
-        }
-        if (page.hasPrevious()){
-            pageResult.put("previousPage", page.previousPageable());
-        }
-        pageResult.put("books", page.getContent());
-        pageResult.put("NumberOfElementsInPage", page.getNumberOfElements());
-        pageResult.put("pageNumber", page.getNumber());
-        pageResult.put("size", page.getSize());
-        return pageResult;
+    @Override
+    public List<WebQuote> findWebQuoteByAuthor(String author) {
+        return webQuoteRepository.findWebQuoteByAuthor(author).orElseThrow(()->
+                new WebQuoteNotFoundException("WebQuote not found!",404));
+    }
+
+    @Override
+    public WebQuote findWebQuoteByQuote(String quote) {
+        return webQuoteRepository.findWebQuoteByQuote(quote).orElseThrow(()->
+                new WebQuoteNotFoundException("WebQuote not found!",404));
+    }
+
+    @Override
+    public WebQuote findWebQuoteByQuoteNumber(int quoteNumber) {
+        return webQuoteRepository.findWebQuoteByQuoteNumber(quoteNumber).orElseThrow(()->
+                new WebQuoteNotFoundException("WebQuote not found!",404));
     }
 
     private WebQuote buildWebQuoteFrom(int i, String quote) {

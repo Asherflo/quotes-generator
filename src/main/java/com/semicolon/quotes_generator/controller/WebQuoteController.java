@@ -1,9 +1,10 @@
 package com.semicolon.quotes_generator.controller;
 
+import com.mongodb.lang.NonNull;
+import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.dtos.responses.ApiResponse;
 import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
 import com.semicolon.quotes_generator.service.web.WebQuoteService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,17 +30,31 @@ public class WebQuoteController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/{pageNo}/{noOfItems}")
-    public ResponseEntity<?> getAllBooks(
-            @PathVariable(value = "pageNo", required = false) @DefaultValue({"0"}) @NonNull String pageNo,
-            @PathVariable(value = "noOfItems", required = false) @DefaultValue({"10"}) @NonNull String numberOfItems) {
+    @GetMapping("/{author}")
+    public ResponseEntity<?> findWebQuoteByAuthor(@PathVariable String author) {
+        List<WebQuote> dtoList = webQuoteService.findWebQuoteByAuthor(author);
+        return new ResponseEntity<>(dtoList, HttpStatus.OK);
+    }
 
-        Map<String, Object> pageResult = webQuoteService.findAll(Integer.parseInt(pageNo), Integer.parseInt(numberOfItems));
+    @GetMapping("/{quoteNumber}")
+    public ResponseEntity<?> findWebQuoteByAuthorNumber(@PathVariable int quoteNumber) {
+        WebQuote webQuote = webQuoteService.findWebQuoteByQuoteNumber(quoteNumber);
+        return new ResponseEntity<>(webQuote, HttpStatus.OK);
+    }
+
+    @GetMapping("/{quote}")
+    public ResponseEntity<?> findWebQuoteByQuote(@PathVariable String quote) {
+        WebQuote webQuote = webQuoteService.findWebQuoteByQuote(quote);
+        return new ResponseEntity<>(webQuote, HttpStatus.OK);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllQuotes() {
+        List<WebQuote> webQuoteList = webQuoteService.findAll();
         ApiResponse apiResponse = ApiResponse.builder()
                 .status("success")
                 .message("pages returned")
-                .data(pageResult)
-                .result((int) pageResult.get("NumberOfElementsInPage"))
+                .data(webQuoteList)
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }

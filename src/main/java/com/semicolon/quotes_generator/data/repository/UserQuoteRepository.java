@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserQuoteRepository  extends MongoRepository<UserQuote, String> {
+    UserQuote findByQuoteNumber(int quoteNumber);
 }
