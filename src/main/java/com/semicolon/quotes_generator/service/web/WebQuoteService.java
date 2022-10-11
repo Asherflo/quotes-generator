@@ -1,10 +1,10 @@
 package com.semicolon.quotes_generator.service.web;
 
-import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
+
+import java.util.Map;
 
 public interface WebQuoteService {
     LoadQuoteResponse loadWebQuotesToDatabase();
-    WebQuote next();
-    WebQuote previous();
+    Map<String, Object> findAll(int numberOfPages, int numberOfItems);
 }
