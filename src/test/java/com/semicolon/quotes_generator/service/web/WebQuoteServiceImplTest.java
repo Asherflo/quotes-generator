@@ -54,7 +54,7 @@ class WebQuoteServiceImplTest {
     public void canFindWebQuoteByQuoteNumberTest(){
 
         WebQuote webQuote = new WebQuote();
-        webQuote.setQuoteNumber(1);
+//        webQuote.setQuoteNumber(1);
         webQuoteRepository.save(webQuote);
         quoteGeneratorDto = webQuoteRepository.save(webQuote);
         assertEquals(1, quoteGeneratorDto.getQuoteNumber());
