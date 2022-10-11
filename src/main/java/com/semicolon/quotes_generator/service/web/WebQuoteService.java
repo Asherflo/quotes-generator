@@ -4,8 +4,7 @@ import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
 
 public interface WebQuoteService {
     LoadQuoteResponse loadWebQuotesToDatabase();

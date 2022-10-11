@@ -21,4 +21,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_ACCEPTABLE);
     }
 
+    @ExceptionHandler(WebQuoteNotFoundException.class)
+    public ResponseEntity<?> handleWebQuoteNotFoundException(WebQuoteNotFoundException webQuoteNotFoundException) {
+        ApiError apiError = ApiError.builder()
+                .statusCode(406)
+                .message(webQuoteNotFoundException.getMessage())
+                .successful(false)
+                .build();
+        return new ResponseEntity<>(apiError, HttpStatus.NOT_ACCEPTABLE);
+    }
+
 }

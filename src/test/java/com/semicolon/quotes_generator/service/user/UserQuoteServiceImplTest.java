@@ -4,6 +4,7 @@ import com.semicolon.quotes_generator.data.model.UserQuote;
 import com.semicolon.quotes_generator.data.repository.UserQuoteRepository;
 import com.semicolon.quotes_generator.dtos.requests.CreateQuoteRequest;
 import com.semicolon.quotes_generator.dtos.responses.CreateQuoteResponse;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ class UserQuoteServiceImplTest {
     private UserQuoteRepository userQuoteRepository;
 
     private CreateQuoteRequest quoteRequest;
+    private CreateQuoteResponse quoteResponse;
 
     @BeforeEach
     void setUp() {
@@ -28,22 +30,22 @@ class UserQuoteServiceImplTest {
         quoteRequest.setAuthor("Lady lee");
         quoteRequest.setQuoteNumber(1);
         quoteRequest.setQuote("Down the hills ,there's a snake called Arolake,find out yourself ");
+        quoteResponse = userQuoteService.createUser(quoteRequest);
+    }
 
+    @AfterEach
+    void tearDown(){
+        userQuoteService.deleteAll();
     }
 
     @Test
     @DisplayName("User can be created")
     void testUserCanBeCreated(){
-
-        CreateQuoteRequest quoteRequest = new CreateQuoteRequest();
-        quoteRequest.setAuthor("Lady lee");
-        quoteRequest.setQuoteNumber(1);
-        quoteRequest.setQuote("Down the hills ,there's a snake called Arolake,find out yourself ");
-        CreateQuoteResponse quoteResponse = userQuoteService.createUser(quoteRequest);
         assertNotNull(quoteResponse);
+        assertEquals("Down the hills ,there's a snake called Arolake,find out yourself ", quoteResponse.getUserQuote().getQuote());
     }
     @Test
-    @DisplayName("test that quote can be find")
+    @DisplayName("test that quote can be found")
     void testToFindQuoteByQuoteNumber(){
         UserQuote userQuote = userQuoteService.findByQuoteNumber(1);
         assertEquals(1,userQuote.getQuoteNumber());
@@ -51,8 +53,7 @@ class UserQuoteServiceImplTest {
     @Test
     @DisplayName("test can be deleted")
     void testToDeleteByAll(){
-
-        CreateQuoteRequest quoteRequest = new CreateQuoteRequest();userQuoteService.createUser(quoteRequest);
+        userQuoteService.createUser(quoteRequest);
         userQuoteService.deleteAll();
         assertEquals(0L,userQuoteRepository.count());
 
