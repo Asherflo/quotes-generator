@@ -1,8 +1,10 @@
 package com.semicolon.quotes_generator.service.web;
 
-import com.semicolon.quotes_generator.dtos.requests.CreateQuoteRequest;
-import com.semicolon.quotes_generator.dtos.responses.CreateQuoteResponse;
+import com.semicolon.quotes_generator.data.model.WebQuote;
+import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
 
 public interface WebQuoteService {
-    CreateQuoteResponse loadWebQuote(CreateQuoteRequest createQuoteRequest);
+    LoadQuoteResponse loadWebQuotesToDatabase();
+    WebQuote next();
+    WebQuote previous();
 }

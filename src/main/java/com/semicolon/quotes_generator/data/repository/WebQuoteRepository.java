@@ -11,4 +11,5 @@ public interface WebQuoteRepository extends MongoRepository<WebQuote, String> {
     Optional<WebQuote> findWebQuoteByAuthor(String author);
     Optional<WebQuote> findWebQuoteByQuote(String quote);
     Optional<WebQuote> findWebQuoteByQuoteNumber(int quoteNumber);
+    boolean existsByQuote(String quote);
 }
