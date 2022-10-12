@@ -36,13 +36,13 @@ public class WebQuoteController {
         return new ResponseEntity<>(dtoList, HttpStatus.OK);
     }
 
-    @GetMapping("/{quoteNumber}")
-    public ResponseEntity<?> findWebQuoteByAuthorNumber(@PathVariable int quoteNumber) {
+    @GetMapping("quoteNumber/{quoteNumber}")
+    public ResponseEntity<?> findWebQuoteByQuoteNumber(@PathVariable int quoteNumber) {
         WebQuote webQuote = webQuoteService.findWebQuoteByQuoteNumber(quoteNumber);
         return new ResponseEntity<>(webQuote, HttpStatus.OK);
     }
 
-    @GetMapping("/{quote}")
+    @GetMapping("quote/{quote}")
     public ResponseEntity<?> findWebQuoteByQuote(@PathVariable String quote) {
         WebQuote webQuote = webQuoteService.findWebQuoteByQuote(quote);
         return new ResponseEntity<>(webQuote, HttpStatus.OK);

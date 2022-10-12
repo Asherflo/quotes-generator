@@ -2,22 +2,19 @@ package com.semicolon.quotes_generator.service.web;
 ;
 import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.data.repository.WebQuoteRepository;
+import com.semicolon.quotes_generator.dtos.responses.GoQuoteDto;
 import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
-import com.semicolon.quotes_generator.dtos.responses.QuoteDto;
+import com.semicolon.quotes_generator.dtos.responses.Quote;
 import com.semicolon.quotes_generator.exceptions.WebQuoteNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +24,7 @@ public class WebQuoteServiceImpl implements WebQuoteService {
 
     @Override
     public LoadQuoteResponse loadWebQuotesToDatabase() {
-        loadWebQuotesIntoDatabaseFromKanyeWestApi();
+        loadWebQuotesIntoDatabaseFromGoQuoteApi();
         return LoadQuoteResponse.builder().successful(true).build();
     }
 
@@ -54,26 +51,28 @@ public class WebQuoteServiceImpl implements WebQuoteService {
                 new WebQuoteNotFoundException("WebQuote not found!",404));
     }
 
-    private WebQuote buildWebQuoteFrom(int i, String quote) {
+    private WebQuote buildWebQuoteFrom(int count, Quote quote) {
         return WebQuote.builder()
-                 .quote(quote)
-                 .quoteNumber(i)
-                 .author("Kanye West")
+                 .quote(quote.getText())
+                 .quoteNumber(count)
+                 .author(quote.getAuthor())
                  .build();
     }
 
-    private String fetchQuoteFromKanyeWestApi(){
-        QuoteDto quoteDto = restTemplate.getForObject("https://api.kanye.rest", QuoteDto.class);
-        return Objects.requireNonNull(quoteDto).getQuote();
+    private Quote[] fetchQuoteFromGoQuoteApi(){
+        GoQuoteDto goQuoteDto = restTemplate.getForObject("https://goquotes-api.herokuapp.com/api/v1/random?count=100", GoQuoteDto.class);
+        return Objects.requireNonNull(goQuoteDto).getQuotes();
     }
     @Async
-    void loadWebQuotesIntoDatabaseFromKanyeWestApi() {
-        for (int i = 1; i <= 25; i++) {
-            String quote = fetchQuoteFromKanyeWestApi();
-            if (!webQuoteRepository.existsByQuote(quote)) {
-                WebQuote webQuote = buildWebQuoteFrom(i, quote);
-                webQuoteRepository.save(webQuote);
-            }
-        }
+    void loadWebQuotesIntoDatabaseFromGoQuoteApi() {
+        AtomicInteger count  = new AtomicInteger(1);
+            Quote[] quotes = fetchQuoteFromGoQuoteApi();
+            Arrays.stream(quotes).forEach(quote -> {
+                if (!webQuoteRepository.existsByQuote(quote.getText())) {
+                    WebQuote webQuote = buildWebQuoteFrom(count.getAndIncrement(),quote);
+                    webQuoteRepository.save(webQuote);
+                }
+            });
     }
 }
+
