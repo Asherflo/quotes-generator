@@ -7,13 +7,15 @@ import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
 import com.semicolon.quotes_generator.dtos.responses.Quote;
 import com.semicolon.quotes_generator.exceptions.WebQuoteNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -29,9 +31,26 @@ public class WebQuoteServiceImpl implements WebQuoteService {
     }
 
     @Override
-    public List<WebQuote> findAll() {
-        return webQuoteRepository.findAll();
+    public Map<String, Object> findAll(int numberOfPages, int numberOfItems) {
+        Pageable pageable = PageRequest.of(numberOfPages, numberOfItems);
+        Page<WebQuote> page = webQuoteRepository.findAll(pageable);
+
+        Map<String, Object> pageResult = new HashMap<>();
+        pageResult.put("totalNumberOfPages", page.getTotalPages());
+        pageResult.put("totalNumberOfElementsInDatabase", page.getTotalElements());
+        if (page.hasNext()){
+            pageResult.put("nextPage", page.nextPageable());
+        }
+        if (page.hasPrevious()){
+            pageResult.put("previousPage", page.previousPageable());
+        }
+        pageResult.put("webQuotes", page.getContent());
+        pageResult.put("NumberOfElementsInPage", page.getNumberOfElements());
+        pageResult.put("pageNumber", page.getNumber());
+        pageResult.put("size", page.getSize());
+        return pageResult;
     }
+
 
     @Override
     public List<WebQuote> findWebQuoteByAuthor(String author) {

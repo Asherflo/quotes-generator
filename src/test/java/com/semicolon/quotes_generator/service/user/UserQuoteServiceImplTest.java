@@ -56,8 +56,6 @@ class UserQuoteServiceImplTest {
         userQuoteService.createUser(quoteRequest);
         userQuoteService.deleteAll();
         assertEquals(0L,userQuoteRepository.count());
-
-
     }
 
 

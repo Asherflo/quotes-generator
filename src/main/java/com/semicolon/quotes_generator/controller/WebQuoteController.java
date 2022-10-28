@@ -1,6 +1,5 @@
 package com.semicolon.quotes_generator.controller;
 
-import com.mongodb.lang.NonNull;
 import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.dtos.responses.ApiResponse;
 import com.semicolon.quotes_generator.dtos.responses.LoadQuoteResponse;
@@ -48,13 +47,17 @@ public class WebQuoteController {
         return new ResponseEntity<>(webQuote, HttpStatus.OK);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllQuotes() {
-        List<WebQuote> webQuoteList = webQuoteService.findAll();
+    @GetMapping("all/{pageNo}/{noOfItems}")
+    public ResponseEntity<?> getAllBooks(
+            @PathVariable(value = "pageNo", required = false) @DefaultValue({"0"}) @NotNull String pageNo,
+            @PathVariable(value = "noOfItems", required = false) @DefaultValue({"10"}) @NotNull String numberOfItems){
+
+        Map<String, Object> pageResult = webQuoteService.findAll(Integer.parseInt(pageNo), Integer.parseInt(numberOfItems));
         ApiResponse apiResponse = ApiResponse.builder()
                 .status("success")
                 .message("pages returned")
-                .data(webQuoteList)
+                .data(pageResult)
+                .result((int)pageResult.get("NumberOfElementsInPage"))
                 .build();
         return new ResponseEntity<>(apiResponse, HttpStatus.OK);
     }

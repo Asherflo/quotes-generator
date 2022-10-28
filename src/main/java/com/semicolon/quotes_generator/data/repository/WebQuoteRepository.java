@@ -1,6 +1,9 @@
 package com.semicolon.quotes_generator.data.repository;
 
 import com.semicolon.quotes_generator.data.model.WebQuote;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +16,5 @@ public interface WebQuoteRepository extends MongoRepository<WebQuote, String> {
     Optional<WebQuote> findWebQuoteByQuote(String quote);
     Optional<WebQuote> findWebQuoteByQuoteNumber(int quoteNumber);
     boolean existsByQuote(String quote);
-    List<WebQuote> findAll();
+    @NotNull Page<WebQuote> findAll(@NotNull Pageable pageable);
 }
