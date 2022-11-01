@@ -1,7 +1,6 @@
 package com.semicolon.quotes_generator.service.user;
 
 import com.semicolon.quotes_generator.data.model.UserQuote;
-import com.semicolon.quotes_generator.data.model.WebQuote;
 import com.semicolon.quotes_generator.data.repository.UserQuoteRepository;
 import com.semicolon.quotes_generator.dtos.requests.CreateQuoteRequest;
 import com.semicolon.quotes_generator.dtos.responses.CreateQuoteResponse;
@@ -10,11 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 
 
@@ -65,10 +63,6 @@ public class UserQuoteServiceImpl implements UserQuoteService {
         return userQuoteRepository.findByQuoteNumber(quoteNumber);
     }
 
-    @Override
-    public List<UserQuote> findAll() throws QuoteGeneratorException {
-        return userQuoteRepository.findAll();
-    }
 
     @Override
     public void deleteAll() {
